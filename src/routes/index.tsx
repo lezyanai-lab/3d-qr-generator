@@ -141,7 +141,7 @@ function Home() {
   }
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh overflow-x-clip bg-background text-foreground">
       <header className="border-b border-border/70">
         <div className="mx-auto flex max-w-(--content-width) items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4">
           <a
@@ -177,9 +177,9 @@ function Home() {
         </p>
       </section>
 
-      <main className="mx-auto grid max-w-(--content-width) gap-4 px-4 pb-32 sm:px-5 lg:grid-cols-[400px_1fr] lg:gap-6 lg:pb-16">
+      <main className="mx-auto grid max-w-(--content-width) grid-cols-[minmax(0,1fr)] gap-4 px-4 pb-32 sm:px-5 lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-6 lg:pb-16">
         {/* Preview (first on phones, right column on desktop) */}
-        <div className="flex flex-col gap-4 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
           <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-border bg-[radial-gradient(ellipse_at_top,var(--preview-glow),var(--preview-bg)_70%)] sm:aspect-[4/3] lg:aspect-auto lg:h-[560px]">
             {model.base && model.code ? (
               <ModelPreview
@@ -238,7 +238,7 @@ function Home() {
         </div>
 
         {/* Controls */}
-        <div className="space-y-6 rounded-3xl border border-border bg-card p-4 sm:p-5 lg:col-start-1 lg:row-start-1">
+        <div className="min-w-0 space-y-6 rounded-3xl border border-border bg-card p-4 sm:p-5 lg:col-start-1 lg:row-start-1">
           <div>
             <StepLabel n={1}>Content</StepLabel>
             <div className="mb-3 grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">

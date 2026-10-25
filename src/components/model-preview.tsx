@@ -31,6 +31,15 @@ export function ModelPreview({
     const host = hostRef.current!
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    // The canvas is absolutely positioned and sized by CSS, so it can never
+    // push its container (or the page) wider than the screen.
+    Object.assign(renderer.domElement.style, {
+      position: 'absolute',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      display: 'block',
+    })
     host.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
@@ -73,7 +82,7 @@ export function ModelPreview({
 
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = host
-      renderer.setSize(w, h)
+      renderer.setSize(w, h, false)
       camera.aspect = w / h
       camera.updateProjectionMatrix()
     }
@@ -140,7 +149,7 @@ export function ModelPreview({
   return (
     <div
       ref={hostRef}
-      className="h-full w-full cursor-grab active:cursor-grabbing"
+      className="relative h-full w-full min-w-0 overflow-hidden cursor-grab active:cursor-grabbing"
     />
   )
 }
