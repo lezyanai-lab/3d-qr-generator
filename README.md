@@ -9,7 +9,7 @@ Everything runs in the browser: no account, no credits, nothing uploaded.
 - TanStack Start + React 19, Tailwind CSS 4, shadcn/ui
 - [`qrcode`](https://www.npmjs.com/package/qrcode) for the QR matrix
 - [three.js](https://threejs.org) for geometry, the live preview and STL export
-- Deployed on Netlify
+- Deployed on Netlify and GitHub Pages (`GITHUB_PAGES=true pnpm build` makes the static build)
 
 ## Run locally
 
