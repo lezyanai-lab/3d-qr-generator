@@ -4,7 +4,7 @@ This document describes the project for developers and AI agents working on this
 
 ## Project Overview
 
-**QR Forge** — a free, browser-only tool that turns a link, text or Wi‑Fi login into a 3D-printable QR code plate/keychain and exports a two-color 3MF file.
+**3D QR Generator** — a free, browser-only tool that turns a link, text or Wi‑Fi login into a 3D-printable QR code plate/keychain and exports a two-color 3MF file.
 
 - `src/lib/qr-model.ts` — pure logic: QR matrix (`qrcode`), geometry in print orientation (Z-up, plate on XY), two-color 3MF export (one object, base + code parts on extruders 1 and 2). Dark modules are merged into per-row runs to keep meshes small.
 - `src/components/model-preview.tsx` — three.js + OrbitControls preview; the group is rotated -90° on X for display only, exports never include that rotation.
@@ -41,7 +41,7 @@ Non-obvious decisions: there is no backend and no persistence on purpose — eve
 │   │   └── utils.ts    # cn() helper for merging Tailwind classes.
 │   ├── routes
 │   │   ├── __root.tsx  # HTML shell, <head> metadata (siteName, siteDescription), the tooltip provider, and the toast container.
-│   │   └── index.tsx   # Home route (/): the QR Forge generator UI.
+│   │   └── index.tsx   # Home route (/): the 3D QR Generator UI.
 │   ├── router.tsx      # Creates the router from the generated route tree.
 │   └── styles.css      # Tailwind import, theme variables for light and dark mode, base styles.
 ├── components.json     # shadcn/ui config, used by `npx shadcn add`.

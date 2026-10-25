@@ -6,7 +6,7 @@ import { NotFoundPage } from '@/components/error-pages'
 
 import '../styles.css'
 
-const siteName = 'QR Forge — Free 3D QR Code Model Maker'
+const siteName = '3D QR Generator — Free 3D-Printable QR Code Maker'
 const siteDescription =
   'Turn any link, text or Wi-Fi login into a 3D-printable QR code tag or keychain. Free two-color 3MF download, no account needed.'
 
@@ -19,6 +19,10 @@ export const Route = createRootRoute({
       {
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
+      },
+      {
+        name: 'theme-color',
+        content: '#0f1224',
       },
       {
         title: siteName,
@@ -46,7 +50,11 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
       {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap',

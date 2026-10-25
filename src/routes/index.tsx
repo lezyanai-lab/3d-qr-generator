@@ -68,7 +68,11 @@ function Home() {
   const [codeColor, setCodeColor] = useState(filaments[1].hex)
 
   const content =
-    mode === 'url' ? url : mode === 'text' ? text : wifiString(ssid, wifiPass, security)
+    mode === 'url'
+      ? url
+      : mode === 'text'
+        ? text
+        : wifiString(ssid, wifiPass, security)
 
   const set = <K extends keyof ModelParams>(key: K, value: ModelParams[K]) =>
     setParams((p) => ({ ...p, [key]: value }))
@@ -86,7 +90,10 @@ function Home() {
       const matrix = buildMatrix(deferred.content, deferred.errorLevel)
       return { matrix, ...buildGeometry(deferred, matrix) }
     } catch {
-      return { error: 'That content is too long to fit in a QR code. Try shortening it.' }
+      return {
+        error:
+          'That content is too long to fit in a QR code. Try shortening it.',
+      }
     }
   }, [deferred])
 
@@ -94,19 +101,29 @@ function Home() {
   const moduleMm = model.matrix ? params.qrSize / model.matrix.size : 0
   const ready = !!model.base && content.trim().length > 0
 
-  const colorName = (hex: string) => filaments.find((f) => f.hex === hex)?.name ?? hex
+  const colorName = (hex: string) =>
+    filaments.find((f) => f.hex === hex)?.name ?? hex
 
   const download = () => {
     if (!model.base || !model.code) return
     downloadBlob(
       export3MF([
-        { name: `Base (${colorName(baseColor)})`, geometry: model.base, color: baseColor },
-        { name: `Code (${colorName(codeColor)})`, geometry: model.code, color: codeColor },
+        {
+          name: `Base (${colorName(baseColor)})`,
+          geometry: model.base,
+          color: baseColor,
+        },
+        {
+          name: `Code (${colorName(codeColor)})`,
+          geometry: model.code,
+          color: codeColor,
+        },
       ]),
       'qr-code.3mf',
     )
     toast.success('3MF downloaded', {
-      description: 'Base is on filament 1 and the code on filament 2 — open it in your slicer and print.',
+      description:
+        'Base is on filament 1 and the code on filament 2 — open it in your slicer and print.',
     })
   }
 
@@ -124,40 +141,107 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <header className="border-b border-border/70">
-        <div className="mx-auto flex max-w-(--content-width) items-center justify-between px-5 py-4">
-          <a href="/" className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight">
-            <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-              <Layers className="size-4" />
+        <div className="mx-auto flex max-w-(--content-width) items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4">
+          <a
+            href="."
+            className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight"
+          >
+            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+              <Box className="size-5" />
             </span>
-            QR Forge
+            3D QR Generator
           </a>
           <span className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground">
-            100% free · no account · no credits
+            <span className="hidden sm:inline">
+              100% free · no account · no credits
+            </span>
+            <span className="sm:hidden">Free</span>
           </span>
         </div>
       </header>
 
-      <section className="mx-auto max-w-(--content-width) px-5 pt-12 pb-8 md:pt-16">
-        <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
+      <section className="mx-auto max-w-(--content-width) px-4 pt-8 pb-6 sm:px-5 md:pt-14 md:pb-8">
+        <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-accent-strong sm:text-xs">
           QR code → printable 3D model
         </p>
-        <h1 className="max-w-3xl font-display text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
-          Turn any link into a QR tag you can hold.
+        <h1 className="max-w-3xl font-display text-[2rem] font-bold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
+          Turn any link into a QR tag you can{' '}
+          <span className="text-accent-strong">print</span>.
         </h1>
-        <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
-          Type a link, text or Wi‑Fi login, tune the plate, and download a two-color 3MF for your printer.
-          Everything runs in your browser — free, instant, unlimited.
+        <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:mt-5 sm:text-lg">
+          Type a link, text or Wi‑Fi login, tune the plate, and download a
+          two-color 3MF for your printer. Everything runs in your browser —
+          free, instant, unlimited.
         </p>
       </section>
 
-      <main className="mx-auto grid max-w-(--content-width) gap-6 px-5 pb-16 lg:grid-cols-[380px_1fr]">
+      <main className="mx-auto grid max-w-(--content-width) gap-4 px-4 pb-32 sm:px-5 lg:grid-cols-[400px_1fr] lg:gap-6 lg:pb-16">
+        {/* Preview (first on phones, right column on desktop) */}
+        <div className="flex flex-col gap-4 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
+          <div className="relative aspect-[5/4] overflow-hidden rounded-3xl border border-border bg-[radial-gradient(ellipse_at_top,var(--preview-glow),var(--preview-bg)_70%)] sm:aspect-[4/3] lg:aspect-auto lg:h-[560px]">
+            {model.base && model.code ? (
+              <ModelPreview
+                base={model.base}
+                code={model.code}
+                baseColor={baseColor}
+                codeColor={codeColor}
+                extent={dims.height}
+              />
+            ) : (
+              <div className="grid h-full place-items-center p-8 text-center text-sm text-muted-foreground">
+                {model.error}
+              </div>
+            )}
+            <div className="pointer-events-none absolute top-3 left-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1.5 font-mono text-[11px] sm:top-4 sm:left-4 sm:gap-2 sm:text-xs">
+              <Chip>
+                {dims.width.toFixed(1)} × {dims.height.toFixed(1)} ×{' '}
+                {dims.depth.toFixed(1)} mm
+              </Chip>
+              {model.matrix && (
+                <Chip>
+                  {model.matrix.size}×{model.matrix.size} modules ·{' '}
+                  {moduleMm.toFixed(2)} mm each
+                </Chip>
+              )}
+            </div>
+            {moduleMm > 0 && moduleMm < 0.8 && (
+              <div className="absolute right-3 bottom-3 left-3 rounded-xl bg-amber-100 px-3 py-2 text-sm text-amber-900 sm:right-4 sm:bottom-4 sm:left-4">
+                Modules are under 0.8 mm — increase the QR size or shorten the
+                content for a reliable scan.
+              </div>
+            )}
+          </div>
+
+          {/* Download bar: pinned to the bottom on phones */}
+          <div className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-[1fr_auto] gap-2 border-t border-border bg-card/90 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:static lg:z-auto lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+            <Button
+              size="lg"
+              className="h-12 text-base lg:h-10 lg:text-sm"
+              disabled={!ready}
+              onClick={download}
+            >
+              <Download /> Download 3MF (2 colors)
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="h-12 px-5 text-base lg:h-10 lg:text-sm"
+              disabled={!ready}
+              onClick={downloadPng}
+              aria-label="Download PNG"
+            >
+              <ImageIcon /> PNG
+            </Button>
+          </div>
+        </div>
+
         {/* Controls */}
-        <div className="space-y-5 rounded-2xl border border-border bg-card p-5">
+        <div className="space-y-6 rounded-3xl border border-border bg-card p-4 sm:p-5 lg:col-start-1 lg:row-start-1">
           <div>
             <StepLabel n={1}>Content</StepLabel>
-            <div className="mb-3 grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+            <div className="mb-3 grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
               {(
                 [
                   ['url', 'Link', Link2],
@@ -170,33 +254,57 @@ function Home() {
                   type="button"
                   onClick={() => setMode(id)}
                   className={cn(
-                    'flex items-center justify-center gap-1.5 rounded-md py-1.5 text-sm font-medium transition',
-                    mode === id ? 'bg-card shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                    'flex min-h-11 items-center justify-center gap-1.5 rounded-lg text-sm font-medium transition',
+                    mode === id
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  <Icon className="size-3.5" /> {label}
+                  <Icon className="size-4" /> {label}
                 </button>
               ))}
             </div>
             {mode === 'url' && (
-              <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" />
+              <Input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://…"
+                inputMode="url"
+                autoCapitalize="none"
+                autoCorrect="off"
+                className="h-11"
+              />
             )}
             {mode === 'text' && (
-              <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} />
+              <Textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                rows={3}
+              />
             )}
             {mode === 'wifi' && (
               <div className="space-y-2">
-                <Input value={ssid} onChange={(e) => setSsid(e.target.value)} placeholder="Network name (SSID)" />
+                <Input
+                  value={ssid}
+                  onChange={(e) => setSsid(e.target.value)}
+                  placeholder="Network name (SSID)"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  className="h-11"
+                />
                 <Input
                   value={wifiPass}
                   onChange={(e) => setWifiPass(e.target.value)}
                   placeholder="Password"
                   type="text"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  className="h-11"
                 />
                 <select
                   value={security}
                   onChange={(e) => setSecurity(e.target.value)}
-                  className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                  className="h-11 w-full rounded-md border border-input bg-card px-3 text-sm"
                 >
                   <option value="WPA">WPA / WPA2 / WPA3</option>
                   <option value="WEP">WEP</option>
@@ -208,29 +316,81 @@ function Home() {
 
           <div>
             <StepLabel n={2}>Plate</StepLabel>
-            <div className="space-y-4">
-              <Slider label="QR size" unit="mm" min={20} max={120} step={1} value={params.qrSize} onChange={(v) => set('qrSize', v)} />
-              <Slider label="Border" unit="mm" min={1} max={12} step={0.5} value={params.margin} onChange={(v) => set('margin', v)} />
-              <Slider label="Base thickness" unit="mm" min={0.8} max={6} step={0.2} value={params.baseThickness} onChange={(v) => set('baseThickness', v)} />
-              <Slider label="Code height" unit="mm" min={0.4} max={3} step={0.2} value={params.qrHeight} onChange={(v) => set('qrHeight', v)} />
-              <Slider label="Corner radius" unit="mm" min={0} max={12} step={0.5} value={params.cornerRadius} onChange={(v) => set('cornerRadius', v)} />
-              <div className="flex items-center justify-between">
-                <Label htmlFor="keychain" className="flex items-center gap-2">
-                  <KeyRound className="size-4 text-muted-foreground" /> Keychain loop
+            <div className="space-y-3">
+              <Slider
+                label="QR size"
+                unit="mm"
+                min={20}
+                max={120}
+                step={1}
+                value={params.qrSize}
+                onChange={(v) => set('qrSize', v)}
+              />
+              <Slider
+                label="Border"
+                unit="mm"
+                min={1}
+                max={12}
+                step={0.5}
+                value={params.margin}
+                onChange={(v) => set('margin', v)}
+              />
+              <Slider
+                label="Base thickness"
+                unit="mm"
+                min={0.8}
+                max={6}
+                step={0.2}
+                value={params.baseThickness}
+                onChange={(v) => set('baseThickness', v)}
+              />
+              <Slider
+                label="Code height"
+                unit="mm"
+                min={0.4}
+                max={3}
+                step={0.2}
+                value={params.qrHeight}
+                onChange={(v) => set('qrHeight', v)}
+              />
+              <Slider
+                label="Corner radius"
+                unit="mm"
+                min={0}
+                max={12}
+                step={0.5}
+                value={params.cornerRadius}
+                onChange={(v) => set('cornerRadius', v)}
+              />
+              <div className="flex min-h-11 items-center justify-between">
+                <Label
+                  htmlFor="keychain"
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <KeyRound className="size-4 text-muted-foreground" /> Keychain
+                  loop
                 </Label>
-                <Switch id="keychain" checked={params.keychain} onCheckedChange={(v) => set('keychain', v)} />
+                <Switch
+                  id="keychain"
+                  checked={params.keychain}
+                  onCheckedChange={(v) => set('keychain', v)}
+                />
               </div>
               <div>
-                <div className="mb-1.5 text-sm font-medium">Error correction</div>
-                <div className="grid grid-cols-4 gap-1 rounded-lg bg-muted p-1">
+                <div className="mb-1.5 text-sm font-medium">
+                  Error correction
+                </div>
+                <div className="grid grid-cols-4 gap-1 rounded-xl bg-muted p-1">
                   {(['L', 'M', 'Q', 'H'] as ErrorLevel[]).map((lvl) => (
                     <button
                       key={lvl}
                       type="button"
                       onClick={() => set('errorLevel', lvl)}
                       className={cn(
-                        'rounded-md py-1 text-sm font-medium transition',
-                        params.errorLevel === lvl ? 'bg-card shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                        'min-h-10 rounded-lg text-sm font-medium transition',
+                        params.errorLevel === lvl
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground',
                       )}
                     >
                       {lvl}
@@ -247,53 +407,10 @@ function Home() {
             <Swatches label="Code" value={codeColor} onChange={setCodeColor} />
           </div>
         </div>
-
-        {/* Preview */}
-        <div className="flex flex-col gap-4">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-[radial-gradient(ellipse_at_top,var(--preview-glow),var(--preview-bg)_70%)] lg:aspect-auto lg:min-h-[520px] lg:flex-1">
-            {model.base && model.code ? (
-              <ModelPreview
-                base={model.base}
-                code={model.code}
-                baseColor={baseColor}
-                codeColor={codeColor}
-                extent={dims.height}
-              />
-            ) : (
-              <div className="grid h-full place-items-center p-8 text-center text-sm text-muted-foreground">
-                {model.error}
-              </div>
-            )}
-            <div className="pointer-events-none absolute top-4 left-4 flex flex-wrap gap-2 font-mono text-xs">
-              <Chip>
-                {dims.width.toFixed(1)} × {dims.height.toFixed(1)} × {dims.depth.toFixed(1)} mm
-              </Chip>
-              {model.matrix && (
-                <Chip>
-                  {model.matrix.size}×{model.matrix.size} modules · {moduleMm.toFixed(2)} mm each
-                </Chip>
-              )}
-            </div>
-            {moduleMm > 0 && moduleMm < 0.8 && (
-              <div className="absolute right-4 bottom-4 left-4 rounded-lg bg-amber-100 px-3 py-2 text-sm text-amber-900">
-                Modules are under 0.8 mm — increase the QR size or shorten the content for a reliable scan.
-              </div>
-            )}
-          </div>
-
-          <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-            <Button size="lg" disabled={!ready} onClick={download}>
-              <Download /> Download 3MF (2 colors)
-            </Button>
-            <Button size="lg" variant="ghost" disabled={!ready} onClick={downloadPng} aria-label="Download PNG">
-              <ImageIcon /> PNG
-            </Button>
-          </div>
-        </div>
       </main>
 
-      <section className="border-t border-border bg-muted/40">
-        <div className="mx-auto grid max-w-(--content-width) gap-8 px-5 py-14 md:grid-cols-3">
+      <section className="border-t border-border bg-muted/30">
+        <div className="mx-auto grid max-w-(--content-width) gap-8 px-4 py-10 sm:px-5 md:grid-cols-3 md:py-14">
           {[
             {
               icon: Printer,
@@ -314,14 +431,17 @@ function Home() {
             <div key={title}>
               <Icon className="mb-3 size-5 text-accent-strong" />
               <h3 className="mb-1.5 font-display font-semibold">{title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {body}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      <footer className="mx-auto max-w-(--content-width) px-5 py-8 text-xs text-muted-foreground">
-        QR Forge — a free, open tool for makers. Models are generated locally in your browser; nothing is uploaded.
+      <footer className="mx-auto max-w-(--content-width) px-4 py-8 pb-28 text-xs text-muted-foreground sm:px-5 lg:pb-8">
+        3D QR Generator — a free, open tool for makers. Models are generated
+        locally in your browser; nothing is uploaded.
       </footer>
     </div>
   )
@@ -329,8 +449,8 @@ function Home() {
 
 function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
   return (
-    <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-      <span className="grid size-5 place-items-center rounded-full bg-primary font-mono text-[11px] text-primary-foreground">
+    <div className="mb-3 flex items-center gap-2 text-base font-semibold">
+      <span className="grid size-6 place-items-center rounded-full bg-primary font-mono text-xs text-primary-foreground">
         {n}
       </span>
       {children}
@@ -339,7 +459,11 @@ function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
-  return <span className="rounded-md bg-card/85 px-2 py-1 shadow-sm backdrop-blur">{children}</span>
+  return (
+    <span className="rounded-lg bg-card/80 px-2 py-1 shadow-sm backdrop-blur">
+      {children}
+    </span>
+  )
 }
 
 function Slider(props: {
@@ -353,7 +477,7 @@ function Slider(props: {
 }) {
   return (
     <label className="block">
-      <div className="mb-1 flex justify-between text-sm">
+      <div className="mb-0.5 flex justify-between text-sm">
         <span className="font-medium">{props.label}</span>
         <span className="font-mono text-muted-foreground">
           {props.value} {props.unit}
@@ -372,11 +496,19 @@ function Slider(props: {
   )
 }
 
-function Swatches({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Swatches({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+}) {
   return (
-    <div className="mb-3 flex items-center gap-3">
+    <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
       <span className="w-10 text-sm text-muted-foreground">{label}</span>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {filaments.map((f) => (
           <button
             key={f.hex}
@@ -385,8 +517,9 @@ function Swatches({ label, value, onChange }: { label: string; value: string; on
             aria-label={`${label}: ${f.name}`}
             onClick={() => onChange(f.hex)}
             className={cn(
-              'size-7 rounded-full border border-black/10 transition',
-              value === f.hex && 'ring-2 ring-(--accent-strong) ring-offset-2 ring-offset-card',
+              'size-9 rounded-full border border-white/20 transition lg:size-7',
+              value === f.hex &&
+                'ring-2 ring-(--accent-strong) ring-offset-2 ring-offset-card',
             )}
             style={{ backgroundColor: f.hex }}
           />

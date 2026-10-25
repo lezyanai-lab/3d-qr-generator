@@ -66,7 +66,10 @@ export function buildGeometry(params: ModelParams, matrix: QRMatrix) {
   const extrude = { depth: params.baseThickness, bevelEnabled: false }
 
   const baseParts: THREE.BufferGeometry[] = [
-    new THREE.ExtrudeGeometry(roundedRect(side, side, params.cornerRadius), extrude),
+    new THREE.ExtrudeGeometry(
+      roundedRect(side, side, params.cornerRadius),
+      extrude,
+    ),
   ]
 
   if (params.keychain) {
@@ -105,7 +108,9 @@ export function buildGeometry(params: ModelParams, matrix: QRMatrix) {
       boxes.push(box.toNonIndexed())
     }
   }
-  const code = boxes.length ? mergeGeometries(boxes)! : new THREE.BufferGeometry()
+  const code = boxes.length
+    ? mergeGeometries(boxes)!
+    : new THREE.BufferGeometry()
 
   return { base, code }
 }
@@ -127,7 +132,11 @@ export interface ModelPart {
 }
 
 const esc = (v: string) =>
-  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  v
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
 
 /**
  * Exports a single 3MF containing one object made of several parts. Each part
@@ -165,20 +174,26 @@ export function export3MF(parts: ModelPart[], objectName = 'QR code'): Blob {
       const b = vertexId(index ? index.getX(t + 1) : t + 1)
       const c = vertexId(index ? index.getX(t + 2) : t + 2)
       if (a === b || b === c || a === c) continue
-      triangles.push(`<triangle v1="${a}" v2="${b}" v3="${c}" pid="1" p1="${partIndex}"/>`)
+      triangles.push(
+        `<triangle v1="${a}" v2="${b}" v3="${c}" pid="1" p1="${partIndex}"/>`,
+      )
     }
-    if (triangles.length > first) ranges.push({ first, last: triangles.length - 1 })
+    if (triangles.length > first)
+      ranges.push({ first, last: triangles.length - 1 })
     else ranges.push({ first: -1, last: -1 })
   })
 
   const materials = parts
-    .map((p) => `<base name="${esc(p.name)}" displaycolor="${p.color.toUpperCase()}FF"/>`)
+    .map(
+      (p) =>
+        `<base name="${esc(p.name)}" displaycolor="${p.color.toUpperCase()}FF"/>`,
+    )
     .join('')
 
   const model = `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
 <metadata name="Title">${esc(objectName)}</metadata>
-<metadata name="Application">QR Forge</metadata>
+<metadata name="Application">3D QR Generator</metadata>
 <resources>
 <basematerials id="1">${materials}</basematerials>
 <object id="2" type="model" name="${esc(objectName)}" pid="1" pindex="0">

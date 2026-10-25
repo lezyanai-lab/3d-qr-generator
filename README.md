@@ -1,4 +1,4 @@
-# QR Forge
+# 3D QR Generator
 
 A free web tool that turns any link, text or Wi‑Fi login into a 3D-printable QR code tag or keychain. Tune the plate size, border, thickness, code height, corner radius and keychain loop, preview it live in 3D, and download STL files ready for your slicer — a single combined model, or separate base and code parts for two-color printing. A flat PNG of the code is also available.
 

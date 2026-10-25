@@ -18,40 +18,40 @@ code {
 
 :root {
   --font-mono-brand: 'JetBrains Mono', ui-monospace, monospace;
-  --accent-strong: oklch(0.66 0.2 42);
-  --preview-glow: oklch(0.99 0.01 85);
-  --preview-bg: oklch(0.9 0.018 75);
+  --accent-strong: oklch(0.84 0.18 165);
+  --preview-glow: oklch(0.34 0.07 270);
+  --preview-bg: oklch(0.19 0.035 268);
   --font-body:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --font-heading: 'Space Grotesk', var(--font-body);
   --content-width: 72rem;
   --reading-width: 42rem;
-  --background: oklch(0.975 0.008 85);
-  --foreground: oklch(0.2 0.012 60);
-  --card: oklch(0.995 0.004 85);
-  --card-foreground: oklch(0.2 0.012 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.22 0.012 60);
-  --primary-foreground: oklch(0.98 0.006 85);
-  --secondary: oklch(0.94 0.01 80);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.94 0.01 80);
-  --muted-foreground: oklch(0.5 0.015 60);
-  --accent: oklch(0.94 0.01 80);
-  --accent-foreground: oklch(0.21 0.006 285.885);
+  --background: oklch(0.165 0.03 268);
+  --foreground: oklch(0.96 0.01 250);
+  --card: oklch(0.215 0.036 268);
+  --card-foreground: oklch(0.96 0.01 250);
+  --popover: oklch(0.24 0.038 268);
+  --popover-foreground: oklch(0.96 0.01 250);
+  --primary: oklch(0.84 0.18 165);
+  --primary-foreground: oklch(0.2 0.04 268);
+  --secondary: oklch(0.28 0.04 268);
+  --secondary-foreground: oklch(0.96 0.01 250);
+  --muted: oklch(0.27 0.04 268);
+  --muted-foreground: oklch(0.74 0.03 260);
+  --accent: oklch(0.3 0.045 268);
+  --accent-foreground: oklch(0.96 0.01 250);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.88 0.012 80);
-  --input: oklch(0.86 0.012 80);
-  --ring: oklch(0.68 0.19 45);
+  --border: oklch(0.33 0.045 268);
+  --input: oklch(0.38 0.05 268);
+  --ring: oklch(0.84 0.18 165);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.75rem;
+  --radius: 1rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: oklch(0.21 0.006 285.885);
@@ -143,6 +143,39 @@ code {
 }
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* 16px inputs stop iOS Safari zooming the page on focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  @media (min-width: 1024px) {
+    input,
+    textarea,
+    select {
+      font-size: 14px !important;
+    }
+  }
+  /* Bigger, finger-friendly range sliders */
+  input[type='range'] {
+    height: 2rem;
+    cursor: pointer;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  input[type='range']::-moz-range-thumb {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
   * {
     @apply border-border outline-ring/50;
   }

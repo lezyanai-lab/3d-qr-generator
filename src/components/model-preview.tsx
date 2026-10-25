@@ -10,8 +10,14 @@ interface Props {
   extent: number
 }
 
-/** Interactive three.js preview. Drag to orbit, scroll to zoom. */
-export function ModelPreview({ base, code, baseColor, codeColor, extent }: Props) {
+/** Interactive three.js preview. Drag to orbit, scroll to zoom (desktop). */
+export function ModelPreview({
+  base,
+  code,
+  baseColor,
+  codeColor,
+  extent,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<{
     scene: THREE.Scene
@@ -43,14 +49,27 @@ export function ModelPreview({ base, code, baseColor, codeColor, extent }: Props
     group.rotation.x = -Math.PI / 2 // model is built Z-up for printing
     scene.add(group)
 
-    const baseMat = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.02 })
-    const codeMat = new THREE.MeshStandardMaterial({ roughness: 0.45, metalness: 0.02 })
+    const baseMat = new THREE.MeshStandardMaterial({
+      roughness: 0.55,
+      metalness: 0.02,
+    })
+    const codeMat = new THREE.MeshStandardMaterial({
+      roughness: 0.45,
+      metalness: 0.02,
+    })
 
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.autoRotate = true
     controls.autoRotateSpeed = 1.2
     controls.addEventListener('start', () => (controls.autoRotate = false))
+    // On touch screens keep vertical swipes for page scrolling; one-finger
+    // horizontal drags still rotate the model, pinch-zoom/pan are disabled.
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      controls.enableZoom = false
+      controls.enablePan = false
+      renderer.domElement.style.touchAction = 'pan-y'
+    }
 
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = host
@@ -87,11 +106,16 @@ export function ModelPreview({ base, code, baseColor, codeColor, extent }: Props
     const s = sceneRef.current
     if (!s) return
     s.group.clear()
-    s.group.add(new THREE.Mesh(base, s.baseMat), new THREE.Mesh(code, s.codeMat))
+    s.group.add(
+      new THREE.Mesh(base, s.baseMat),
+      new THREE.Mesh(code, s.codeMat),
+    )
     // Center the model around the origin
     s.group.position.set(0, 0, 0)
     s.group.updateMatrixWorld(true)
-    const center = new THREE.Box3().setFromObject(s.group).getCenter(new THREE.Vector3())
+    const center = new THREE.Box3()
+      .setFromObject(s.group)
+      .getCenter(new THREE.Vector3())
     s.group.position.copy(center.negate())
     return () => {
       base.dispose()
@@ -113,5 +137,10 @@ export function ModelPreview({ base, code, baseColor, codeColor, extent }: Props
     s.camera.position.setLength(d)
   }, [extent])
 
-  return <div ref={hostRef} className="h-full w-full cursor-grab active:cursor-grabbing" />
+  return (
+    <div
+      ref={hostRef}
+      className="h-full w-full cursor-grab active:cursor-grabbing"
+    />
+  )
 }
