@@ -148,9 +148,13 @@ function Home() {
             href="."
             className="flex items-center gap-2.5 font-display text-lg font-bold tracking-tight"
           >
-            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Box className="size-5" />
-            </span>
+            <img
+              src={`${import.meta.env.BASE_URL}icon-192.png`}
+              alt=""
+              width={36}
+              height={36}
+              className="size-9 rounded-xl"
+            />
             3D QR Generator
           </a>
           <span className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground">

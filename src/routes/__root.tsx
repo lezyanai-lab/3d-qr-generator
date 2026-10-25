@@ -6,6 +6,10 @@ import { NotFoundPage } from '@/components/error-pages'
 
 import '../styles.css'
 
+const base = import.meta.env.BASE_URL
+// Share previews (WhatsApp, Telegram, etc.) need an absolute image URL.
+const shareImage = 'https://lezyanai-lab.github.io/3d-qr-generator/og-image.png'
+
 const siteName = '3D QR Generator — Free 3D-Printable QR Code Maker'
 const siteDescription =
   'Turn any link, text or Wi-Fi login into a 3D-printable QR code tag or keychain. Free two-color 3MF download, no account needed.'
@@ -44,11 +48,41 @@ export const Route = createRootRoute({
         content: 'website',
       },
       {
+        property: 'og:image',
+        content: shareImage,
+      },
+      {
+        property: 'og:image:width',
+        content: '1200',
+      },
+      {
+        property: 'og:image:height',
+        content: '630',
+      },
+      {
         name: 'twitter:card',
         content: 'summary_large_image',
       },
+      {
+        name: 'twitter:image',
+        content: shareImage,
+      },
     ],
     links: [
+      { rel: 'icon', href: `${base}favicon.ico`, sizes: '48x48' },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: `${base}favicon-32.png`,
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '192x192',
+        href: `${base}icon-192.png`,
+      },
+      { rel: 'apple-touch-icon', href: `${base}apple-touch-icon.png` },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       {
         rel: 'preconnect',
