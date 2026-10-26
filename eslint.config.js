@@ -6,7 +6,6 @@ export default tseslint.config(
   {
     ignores: [
       'dist/**',
-      '.netlify/**',
       '.tanstack/**',
       'src/routeTree.gen.ts',
       'public/sw.js',

@@ -2,23 +2,19 @@ import { defineConfig } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import netlify from '@netlify/vite-plugin-tanstack-start'
 
-// GitHub Pages build: static SPA served from /3d-qr-generator/.
-// Set GITHUB_PAGES=true to build it; the default build targets Netlify (SSR).
-const isPages = process.env.GITHUB_PAGES === 'true'
+// Static single-page build for GitHub Pages, served from /3d-qr-generator/.
+// Use BASE_PATH=/ to build for a site root (custom domain).
+const base = process.env.BASE_PATH ?? '/3d-qr-generator/'
 
 const config = defineConfig({
-  base: isPages ? '/3d-qr-generator/' : '/',
+  base,
   resolve: { tsconfigPaths: true },
   plugins: [
     tailwindcss(),
-    ...(isPages ? [] : [netlify()]),
-    tanstackStart(
-      isPages
-        ? { spa: { enabled: true, prerender: { outputPath: '/index.html' } } }
-        : {},
-    ),
+    tanstackStart({
+      spa: { enabled: true, prerender: { outputPath: '/index.html' } },
+    }),
     viteReact(),
   ],
 })

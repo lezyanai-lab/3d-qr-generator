@@ -28,8 +28,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-        env:
-          GITHUB_PAGES: 'true'
       - run: cp dist/client/index.html dist/client/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
