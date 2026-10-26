@@ -580,7 +580,7 @@ function isLang(v: unknown): v is Lang {
 let chosen: Lang | null = null
 const listeners = new Set<() => void>()
 
-/** Chosen language first, then the saved one, then the browser language, then English. */
+/** The language the user picked (this session or saved); English by default. */
 function detectLang(): Lang {
   if (chosen) return chosen
   try {
@@ -588,11 +588,6 @@ function detectLang(): Lang {
     if (isLang(stored)) return stored
   } catch {
     /* storage unavailable */
-  }
-  for (const raw of navigator.languages ?? [navigator.language]) {
-    const code = raw.slice(0, 2).toLowerCase()
-    const mapped = code === 'iw' ? 'he' : code
-    if (isLang(mapped)) return mapped
   }
   return 'en'
 }

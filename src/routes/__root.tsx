@@ -16,7 +16,7 @@ const shareImage = 'https://lezyanai-lab.github.io/3d-qr-generator/og-image.png'
 // browser's "install app" prompt so the Install button can use it later.
 const bootScript = `(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
 d.classList.toggle('dark',t==='dark');var m=document.querySelector('meta[name="theme-color"][data-dynamic]');if(m)m.setAttribute('content',t==='dark'?'#0f1224':'#f4f6fb');
-var L=['en','he','ar','es','fr','de','ru'];var l=localStorage.getItem('lang');if(L.indexOf(l)<0){l='en';var ns=navigator.languages||[navigator.language];for(var i=0;i<ns.length;i++){var c=String(ns[i]).slice(0,2).toLowerCase();if(c==='iw')c='he';if(L.indexOf(c)>-1){l=c;break}}}
+var L=['en','he','ar','es','fr','de','ru'];var l=localStorage.getItem('lang');if(L.indexOf(l)<0){l='en'}
 d.lang=l;d.dir=(l==='he'||l==='ar')?'rtl':'ltr'}catch(e){}
 addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('install-prompt-ready'))})})();`
 
