@@ -1,0 +1,33 @@
+{
+  "name": "3D QR Generator",
+  "short_name": "3D QR",
+  "description": "Turn any link, text or Wi-Fi login into a 3D-printable QR code tag or keychain.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f1224",
+  "theme_color": "#0f1224",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

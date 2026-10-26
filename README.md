@@ -4,6 +4,15 @@ A free web tool that turns any link, text or Wi‑Fi login into a 3D-printable Q
 
 Everything runs in the browser: no account, no credits, nothing uploaded.
 
+## Features
+
+- Link, text or Wi‑Fi QR codes, exported as a two-color 3MF (plus a flat PNG)
+- Keychain ring you can move to any side, slide along the edge and bring closer to the code
+- Light and dark theme (follows the system, switchable)
+- Languages: English, עברית, العربية, Español, Français, Deutsch, Русский (RTL supported)
+- Installable as an app (PWA) and works offline after the first visit
+- Phone-first layout with a pinned download bar
+
 ## Tech
 
 - TanStack Start + React 19, Tailwind CSS 4, shadcn/ui

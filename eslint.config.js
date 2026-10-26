@@ -4,7 +4,13 @@ import reactHooks from 'eslint-plugin-react-hooks'
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', '.netlify/**', '.tanstack/**', 'src/routeTree.gen.ts'],
+    ignores: [
+      'dist/**',
+      '.netlify/**',
+      '.tanstack/**',
+      'src/routeTree.gen.ts',
+      'public/sw.js',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

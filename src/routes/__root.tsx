@@ -3,12 +3,22 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { NotFoundPage } from '@/components/error-pages'
+import { ServiceWorkerRegistration } from '@/components/app-controls'
+import { I18nProvider } from '@/lib/i18n'
 
 import '../styles.css'
 
 const base = import.meta.env.BASE_URL
 // Share previews (WhatsApp, Telegram, etc.) need an absolute image URL.
 const shareImage = 'https://lezyanai-lab.github.io/3d-qr-generator/og-image.png'
+
+// Runs before first paint: applies saved theme + language (no flash), and keeps the
+// browser's "install app" prompt so the Install button can use it later.
+const bootScript = `(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+d.classList.toggle('dark',t==='dark');var m=document.querySelector('meta[name="theme-color"][data-dynamic]');if(m)m.setAttribute('content',t==='dark'?'#0f1224':'#f4f6fb');
+var L=['en','he','ar','es','fr','de','ru'];var l=localStorage.getItem('lang');if(L.indexOf(l)<0){l='en';var ns=navigator.languages||[navigator.language];for(var i=0;i<ns.length;i++){var c=String(ns[i]).slice(0,2).toLowerCase();if(c==='iw')c='he';if(L.indexOf(c)>-1){l=c;break}}}
+d.lang=l;d.dir=(l==='he'||l==='ar')?'rtl':'ltr'}catch(e){}
+addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('install-prompt-ready'))})})();`
 
 const siteName = '3D QR Generator — Free 3D-Printable QR Code Maker'
 const siteDescription =
@@ -27,6 +37,23 @@ export const Route = createRootRoute({
       {
         name: 'theme-color',
         content: '#0f1224',
+        'data-dynamic': 'true',
+      },
+      {
+        name: 'mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes',
+      },
+      {
+        name: 'apple-mobile-web-app-title',
+        content: '3D QR',
+      },
+      {
+        name: 'apple-mobile-web-app-status-bar-style',
+        content: 'black-translucent',
       },
       {
         title: siteName,
@@ -69,6 +96,7 @@ export const Route = createRootRoute({
       },
     ],
     links: [
+      { rel: 'manifest', href: `${base}manifest.webmanifest` },
       { rel: 'icon', href: `${base}favicon.ico`, sizes: '48x48' },
       {
         rel: 'icon',
@@ -95,18 +123,22 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  scripts: () => [{ children: bootScript }],
   shellComponent: RootDocument,
   notFoundComponent: NotFoundPage,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        <TooltipProvider>{children}</TooltipProvider>
+        <I18nProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+          <ServiceWorkerRegistration />
+        </I18nProvider>
         <Toaster />
         <Scripts />
       </body>

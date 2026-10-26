@@ -4,6 +4,13 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import { strToU8, zipSync } from 'three/examples/jsm/libs/fflate.module.js'
 
 export type ErrorLevel = 'L' | 'M' | 'Q' | 'H'
+export type LoopSide = 'top' | 'right' | 'bottom' | 'left'
+
+/** Smallest module size (mm) that still scans reliably on most printers. */
+export const MIN_MODULE_MM = 1
+
+export const LOOP_OUTER_R = 6
+export const LOOP_HOLE_R = 2.5
 
 export interface ModelParams {
   content: string
@@ -15,6 +22,12 @@ export interface ModelParams {
   qrHeight: number
   cornerRadius: number
   keychain: boolean
+  /** Which edge the ring sits on */
+  loopSide: LoopSide
+  /** Solid material between the ring hole and the plate edge, mm (smaller = closer) */
+  loopGap: number
+  /** Slide the ring along its edge, mm from the centre */
+  loopOffset: number
   errorLevel: ErrorLevel
 }
 
@@ -26,6 +39,9 @@ export const defaultParams: ModelParams = {
   qrHeight: 1,
   cornerRadius: 3,
   keychain: true,
+  loopSide: 'top',
+  loopGap: 1.5,
+  loopOffset: 0,
   errorLevel: 'M',
 }
 
@@ -73,15 +89,23 @@ export function buildGeometry(params: ModelParams, matrix: QRMatrix) {
   ]
 
   if (params.keychain) {
-    const tabR = 6
-    const holeR = 2.5
-    const cy = side / 2 + tabR - 1
+    const tabR = LOOP_OUTER_R
+    const holeR = LOOP_HOLE_R
+    // The hole must stay fully outside the plate, otherwise the plate would fill it in.
+    const gap = Math.max(1, params.loopGap)
+    const cy = side / 2 + holeR + gap
+    const maxOffset = Math.max(0, side / 2 - 4)
+    const cx = Math.max(-maxOffset, Math.min(maxOffset, params.loopOffset))
     const tab = new THREE.Shape()
-    tab.absarc(0, cy, tabR, 0, Math.PI * 2, false)
+    tab.absarc(cx, cy, tabR, 0, Math.PI * 2, false)
     const hole = new THREE.Path()
-    hole.absarc(0, cy, holeR, 0, Math.PI * 2, true)
+    hole.absarc(cx, cy, holeR, 0, Math.PI * 2, true)
     tab.holes.push(hole)
-    baseParts.push(new THREE.ExtrudeGeometry(tab, extrude))
+    const tabGeo = new THREE.ExtrudeGeometry(tab, extrude)
+    // Built on the top edge, then turned around the plate centre for the other sides.
+    const turns = { top: 0, left: 1, bottom: 2, right: 3 }[params.loopSide]
+    tabGeo.rotateZ((turns * Math.PI) / 2)
+    baseParts.push(tabGeo)
   }
 
   const base = mergeGeometries(baseParts.map((g) => g.toNonIndexed()))!
@@ -117,9 +141,13 @@ export function buildGeometry(params: ModelParams, matrix: QRMatrix) {
 
 export function modelDimensions(params: ModelParams) {
   const side = params.qrSize + params.margin * 2
+  const ring = params.keychain
+    ? LOOP_HOLE_R + Math.max(1, params.loopGap) + LOOP_OUTER_R
+    : 0
+  const vertical = params.loopSide === 'top' || params.loopSide === 'bottom'
   return {
-    width: side,
-    height: params.keychain ? side + 11 : side,
+    width: vertical ? side : side + ring,
+    height: vertical ? side + ring : side,
     depth: params.baseThickness + params.qrHeight,
   }
 }
