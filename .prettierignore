@@ -4,3 +4,5 @@ dist
 src/routeTree.gen.ts
 src/components/ui/LICENSE.md
 package-lock.json
+.claude
+.agents
