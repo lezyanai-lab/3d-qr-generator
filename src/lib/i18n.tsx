@@ -92,6 +92,21 @@ const en = {
   ecM: 'M — Medium: recovers ~15%. Good default.',
   ecQ: 'Q — Quartile: recovers ~25%. For tags that may get scratched.',
   ecH: 'H — High: recovers ~30%. Best for rough use; the code gets denser.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'Country code',
+  waNumber: 'Phone number',
+  waMessage: 'Message (optional)',
+  waInvalid: 'Enter a valid phone number (8–15 digits).',
+  waHint: 'Scanning opens a WhatsApp chat with this number.',
+  compensation: 'Print compensation',
+  compensationHint:
+    'Shrinks the code slightly so over-extruded filament doesn’t close the gaps. Raise it if your prints come out bloated.',
+  lowContrast:
+    'Low contrast between base and code — pick a much darker code color for a reliable scan.',
+  invertedColors:
+    'The code is lighter than the base. Many scanners can’t read inverted codes — use a dark code on a light base.',
+  quietZoneNote:
+    'The border is kept at least 4 modules wide so scanners can find the code.',
 }
 
 export type Key = keyof typeof en
@@ -169,6 +184,21 @@ const he: Dict = {
   ecM: 'M — בינוני: משחזר כ-15%. ברירת מחדל טובה.',
   ecQ: 'Q — גבוה: משחזר כ-25%. לשלטים שעלולים להישרט.',
   ecH: 'H — מרבי: משחזר כ-30%. הכי טוב לשימוש גס, הקוד נעשה צפוף יותר.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'קידומת מדינה',
+  waNumber: 'מספר טלפון',
+  waMessage: 'הודעה (לא חובה)',
+  waInvalid: 'הזינו מספר טלפון תקין (8–15 ספרות).',
+  waHint: 'בסריקה ייפתח צ׳אט וואטסאפ עם המספר הזה.',
+  compensation: 'פיצוי הדפסה',
+  compensationHint:
+    'מכווץ מעט את הקוד כדי שפילמנט שנפלט בעודף לא יסגור את הרווחים. הגדילו אם ההדפסות יוצאות שמנות.',
+  lowContrast:
+    'הניגודיות בין הבסיס לקוד נמוכה — בחרו צבע קוד כהה בהרבה כדי שהסריקה תהיה אמינה.',
+  invertedColors:
+    'הקוד בהיר יותר מהבסיס. סורקים רבים לא קוראים קוד הפוך — השתמשו בקוד כהה על בסיס בהיר.',
+  quietZoneNote:
+    'המסגרת נשמרת ברוחב של לפחות 4 מודולים כדי שהסורק ימצא את הקוד.',
 }
 
 const ar: Dict = {
@@ -245,6 +275,21 @@ const ar: Dict = {
   ecM: 'M — متوسط: يستعيد نحو 15%. خيار افتراضي جيد.',
   ecQ: 'Q — مرتفع: يستعيد نحو 25%. للوحات التي قد تتعرض للخدوش.',
   ecH: 'H — أقصى: يستعيد نحو 30%. الأفضل للاستخدام القاسي، لكن الرمز يصبح أكثر كثافة.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'رمز الدولة',
+  waNumber: 'رقم الهاتف',
+  waMessage: 'رسالة (اختياري)',
+  waInvalid: 'أدخل رقم هاتف صالحًا (من 8 إلى 15 رقمًا).',
+  waHint: 'عند المسح تُفتح محادثة واتساب مع هذا الرقم.',
+  compensation: 'تعويض الطباعة',
+  compensationHint:
+    'يُصغّر الرمز قليلًا حتى لا يملأ الخيط الزائد الفراغات. ارفعه إذا خرجت الطباعة سميكة.',
+  lowContrast:
+    'التباين بين القاعدة والرمز منخفض — اختر لونًا أغمق بكثير للرمز لمسح موثوق.',
+  invertedColors:
+    'الرمز أفتح من القاعدة. كثير من الماسحات لا تقرأ الرموز المعكوسة — استخدم رمزًا داكنًا على قاعدة فاتحة.',
+  quietZoneNote:
+    'يُبقى الإطار بعرض 4 وحدات على الأقل ليتمكن الماسح من إيجاد الرمز.',
 }
 
 const es: Dict = {
@@ -323,6 +368,21 @@ const es: Dict = {
   ecM: 'M — Medio: recupera ~15 %. Buena opción por defecto.',
   ecQ: 'Q — Alto: recupera ~25 %. Para placas que pueden rayarse.',
   ecH: 'H — Máximo: recupera ~30 %. Ideal para uso intenso; el código se vuelve más denso.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'Prefijo del país',
+  waNumber: 'Número de teléfono',
+  waMessage: 'Mensaje (opcional)',
+  waInvalid: 'Introduce un número de teléfono válido (8–15 dígitos).',
+  waHint: 'Al escanearlo se abre un chat de WhatsApp con este número.',
+  compensation: 'Compensación de impresión',
+  compensationHint:
+    'Reduce un poco el código para que el exceso de filamento no cierre los huecos. Súbela si tus impresiones salen hinchadas.',
+  lowContrast:
+    'Poco contraste entre la base y el código: elige un color de código mucho más oscuro para un escaneo fiable.',
+  invertedColors:
+    'El código es más claro que la base. Muchos lectores no leen códigos invertidos: usa un código oscuro sobre una base clara.',
+  quietZoneNote:
+    'El borde se mantiene en al menos 4 módulos para que el lector encuentre el código.',
 }
 
 const fr: Dict = {
@@ -401,6 +461,21 @@ const fr: Dict = {
   ecM: 'M — Moyen : récupère ~15 %. Bon choix par défaut.',
   ecQ: 'Q — Élevé : récupère ~25 %. Pour les plaques qui peuvent être rayées.',
   ecH: 'H — Maximal : récupère ~30 %. Idéal en usage intensif ; le code devient plus dense.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'Indicatif du pays',
+  waNumber: 'Numéro de téléphone',
+  waMessage: 'Message (facultatif)',
+  waInvalid: 'Saisissez un numéro de téléphone valide (8 à 15 chiffres).',
+  waHint: 'Au scan, une conversation WhatsApp avec ce numéro s’ouvre.',
+  compensation: 'Compensation d’impression',
+  compensationHint:
+    'Réduit légèrement le code pour que l’excès de filament ne comble pas les espaces. Augmentez-la si vos impressions sont gonflées.',
+  lowContrast:
+    'Faible contraste entre la base et le code : choisissez une couleur de code bien plus foncée pour un scan fiable.',
+  invertedColors:
+    'Le code est plus clair que la base. Beaucoup de lecteurs ne lisent pas les codes inversés : utilisez un code foncé sur une base claire.',
+  quietZoneNote:
+    'La bordure reste d’au moins 4 modules pour que le lecteur trouve le code.',
 }
 
 const de: Dict = {
@@ -478,6 +553,21 @@ const de: Dict = {
   ecM: 'M — Mittel: behebt ~15 %. Gute Standardwahl.',
   ecQ: 'Q — Hoch: behebt ~25 %. Für Schilder, die verkratzen können.',
   ecH: 'H — Maximal: behebt ~30 %. Am besten für raue Nutzung; der Code wird dichter.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'Ländervorwahl',
+  waNumber: 'Telefonnummer',
+  waMessage: 'Nachricht (optional)',
+  waInvalid: 'Gib eine gültige Telefonnummer ein (8–15 Ziffern).',
+  waHint: 'Beim Scannen öffnet sich ein WhatsApp-Chat mit dieser Nummer.',
+  compensation: 'Druckkompensation',
+  compensationHint:
+    'Verkleinert den Code leicht, damit überschüssiges Filament die Lücken nicht schließt. Erhöhe den Wert, wenn Drucke zu dick ausfallen.',
+  lowContrast:
+    'Geringer Kontrast zwischen Basis und Code – wähle eine deutlich dunklere Codefarbe für zuverlässiges Scannen.',
+  invertedColors:
+    'Der Code ist heller als die Basis. Viele Scanner lesen invertierte Codes nicht – nutze einen dunklen Code auf heller Basis.',
+  quietZoneNote:
+    'Der Rand bleibt mindestens 4 Module breit, damit der Scanner den Code findet.',
 }
 
 const ru: Dict = {
@@ -554,6 +644,20 @@ const ru: Dict = {
   ecM: 'M — средний: ~15%. Хороший вариант по умолчанию.',
   ecQ: 'Q — повышенный: ~25%. Для табличек, которые могут поцарапаться.',
   ecH: 'H — максимальный: ~30%. Лучше всего для грубого использования, но код становится плотнее.',
+  tabWhatsapp: 'WhatsApp',
+  waCountry: 'Код страны',
+  waNumber: 'Номер телефона',
+  waMessage: 'Сообщение (необязательно)',
+  waInvalid: 'Введите корректный номер телефона (8–15 цифр).',
+  waHint: 'При сканировании откроется чат WhatsApp с этим номером.',
+  compensation: 'Компенсация печати',
+  compensationHint:
+    'Немного уменьшает код, чтобы лишний пластик не закрывал промежутки. Увеличьте, если печать получается «раздутой».',
+  lowContrast:
+    'Низкий контраст между основой и кодом — выберите заметно более тёмный цвет кода для надёжного сканирования.',
+  invertedColors:
+    'Код светлее основы. Многие сканеры не читают инвертированные коды — используйте тёмный код на светлой основе.',
+  quietZoneNote: 'Рамка не меньше 4 модулей, чтобы сканер нашёл код.',
 }
 
 const dictionaries: Record<Lang, Dict> = { en, he, ar, es, fr, de, ru }
