@@ -22,7 +22,7 @@ addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__i
 
 const siteName = '3D QR Generator — Free 3D-Printable QR Code Maker'
 const siteDescription =
-  'Turn any link, text or Wi-Fi login into a 3D-printable QR code tag or keychain. Free two-color 3MF download, no account needed.'
+  'Turn any link, text, Wi-Fi login or WhatsApp number into a 3D-printable QR code tag or keychain. Free two-color 3MF download, no account needed.'
 
 export const Route = createRootRoute({
   head: () => ({

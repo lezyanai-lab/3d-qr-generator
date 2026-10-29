@@ -9,6 +9,9 @@ export type LoopSide = 'top' | 'right' | 'bottom' | 'left'
 /** Smallest module size (mm) that still scans reliably on most printers. */
 export const MIN_MODULE_MM = 1
 
+/** Width of the empty border scanners need around a code, in modules (QR spec: 4). */
+export const QUIET_MODULES = 4
+
 export const LOOP_OUTER_R = 6
 export const LOOP_HOLE_R = 2.5
 
@@ -29,6 +32,12 @@ export interface ModelParams {
   /** Slide the ring along its edge, mm from the centre */
   loopOffset: number
   errorLevel: ErrorLevel
+  /**
+   * Print compensation, mm. Raised filament always prints a little fatter than
+   * modelled and closes the light gaps between dark modules; every dark edge that
+   * touches the base is pulled in by this much to cancel that out.
+   */
+  inset: number
 }
 
 export const defaultParams: ModelParams = {
@@ -43,6 +52,23 @@ export const defaultParams: ModelParams = {
   loopGap: 1.5,
   loopOffset: 0,
   errorLevel: 'M',
+  inset: 0.05,
+}
+
+/** Smallest border (mm, in 0.5 steps) that still leaves a full quiet zone. */
+export function minMargin(qrSize: number, matrixSize: number) {
+  return Math.ceil(((QUIET_MODULES * qrSize) / matrixSize) * 2) / 2
+}
+
+/** The params actually printed: the border is never smaller than the quiet zone. */
+export function resolveParams(
+  params: ModelParams,
+  matrixSize: number,
+): ModelParams {
+  return {
+    ...params,
+    margin: Math.max(params.margin, minMargin(params.qrSize, matrixSize)),
+  }
 }
 
 export interface QRMatrix {
@@ -54,6 +80,58 @@ export function buildMatrix(content: string, errorLevel: ErrorLevel): QRMatrix {
   const qr = QRCode.create(content || ' ', { errorCorrectionLevel: errorLevel })
   const { size, data } = qr.modules
   return { size, isDark: (r, c) => Boolean(data[r * size + c]) }
+}
+
+/** A dark area of the code in mm, centred on the code (x right, y up). */
+export interface Rect {
+  x0: number
+  x1: number
+  y0: number
+  y1: number
+}
+
+/**
+ * The dark parts of the code as rectangles. Horizontal runs of modules are merged
+ * to keep the mesh small. Each edge that borders a light module is pulled in by
+ * `inset`; edges between two dark modules stay put, so solid areas stay solid.
+ */
+export function codeRects(
+  params: Pick<ModelParams, 'qrSize' | 'inset'>,
+  matrix: QRMatrix,
+): Rect[] {
+  const n = matrix.size
+  const m = params.qrSize / n
+  const half = params.qrSize / 2
+  // Never eat more than a tenth of a module per side, whatever the slider says:
+  // dense codes have small modules and would otherwise lose too much dark area.
+  const inset = Math.min(Math.max(0, params.inset), m / 10)
+  const dark = (r: number, c: number) =>
+    r >= 0 && c >= 0 && r < n && c < n && matrix.isDark(r, c)
+
+  const rects: Rect[] = []
+  for (let r = 0; r < n; r++) {
+    const top = (c: number) => (dark(r - 1, c) ? 0 : inset)
+    const bottom = (c: number) => (dark(r + 1, c) ? 0 : inset)
+    let c = 0
+    while (c < n) {
+      if (!dark(r, c)) {
+        c++
+        continue
+      }
+      const start = c
+      const t = top(c)
+      const b = bottom(c)
+      // A run ends at a light module or where the top/bottom edges change.
+      while (c < n && dark(r, c) && top(c) === t && bottom(c) === b) c++
+      rects.push({
+        x0: -half + start * m + (dark(r, start - 1) ? 0 : inset),
+        x1: -half + c * m - (dark(r, c) ? 0 : inset),
+        y0: half - (r + 1) * m + b,
+        y1: half - r * m - t,
+      })
+    }
+  }
+  return rects
 }
 
 function roundedRect(w: number, h: number, r: number) {
@@ -110,28 +188,15 @@ export function buildGeometry(params: ModelParams, matrix: QRMatrix) {
 
   const base = mergeGeometries(baseParts.map((g) => g.toNonIndexed()))!
 
-  // Merge horizontal runs of dark modules into single boxes to keep the mesh small.
-  const m = params.qrSize / matrix.size
-  const boxes: THREE.BufferGeometry[] = []
-  for (let r = 0; r < matrix.size; r++) {
-    let c = 0
-    while (c < matrix.size) {
-      if (!matrix.isDark(r, c)) {
-        c++
-        continue
-      }
-      const start = c
-      while (c < matrix.size && matrix.isDark(r, c)) c++
-      const len = c - start
-      const box = new THREE.BoxGeometry(len * m, m, params.qrHeight)
-      box.translate(
-        -params.qrSize / 2 + (start + len / 2) * m,
-        params.qrSize / 2 - (r + 0.5) * m,
-        params.baseThickness + params.qrHeight / 2,
-      )
-      boxes.push(box.toNonIndexed())
-    }
-  }
+  const boxes: THREE.BufferGeometry[] = codeRects(params, matrix).map((q) => {
+    const box = new THREE.BoxGeometry(q.x1 - q.x0, q.y1 - q.y0, params.qrHeight)
+    box.translate(
+      (q.x0 + q.x1) / 2,
+      (q.y0 + q.y1) / 2,
+      params.baseThickness + params.qrHeight / 2,
+    )
+    return box.toNonIndexed()
+  })
   const code = boxes.length
     ? mergeGeometries(boxes)!
     : new THREE.BufferGeometry()

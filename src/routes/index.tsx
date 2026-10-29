@@ -9,6 +9,7 @@ import {
   KeyRound,
   Layers,
   Link2,
+  MessageCircle,
   Printer,
   Type,
   Wifi,
@@ -28,17 +29,27 @@ import {
 } from '@/components/app-controls'
 import {
   MIN_MODULE_MM,
+  QUIET_MODULES,
   buildGeometry,
   buildMatrix,
   defaultParams,
   downloadBlob,
   export3MF,
+  minMargin,
   modelDimensions,
+  resolveParams,
   type ErrorLevel,
   type LoopSide,
   type ModelParams,
   type QRMatrix,
 } from '@/lib/qr-model'
+import {
+  DEFAULT_COUNTRY_CODE,
+  normalizeUrl,
+  whatsappDigits,
+  whatsappLink,
+  wifiString,
+} from '@/lib/qr-content'
 import { useI18n, type Key } from '@/lib/i18n'
 import type { BufferGeometry } from 'three'
 import { cn } from '@/lib/utils'
@@ -47,7 +58,7 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 
-type Mode = 'url' | 'text' | 'wifi'
+type Mode = 'url' | 'text' | 'wifi' | 'whatsapp'
 
 // `name` is only used inside the exported 3MF (slicers show it), so it stays English.
 const filaments = [
@@ -75,11 +86,6 @@ const errorLevels: { id: ErrorLevel; key: Key }[] = [
   { id: 'H', key: 'ecH' },
 ]
 
-function wifiString(ssid: string, password: string, security: string) {
-  const esc = (v: string) => v.replace(/([\\;,:"])/g, '\\$1')
-  return `WIFI:T:${security};S:${esc(ssid)};P:${esc(password)};;`
-}
-
 function luminance(hex: string) {
   const [r, g, b] = [1, 3, 5].map((i) => {
     const c = parseInt(hex.slice(i, i + 2), 16) / 255
@@ -101,16 +107,22 @@ function Home() {
   const [ssid, setSsid] = useState('')
   const [wifiPass, setWifiPass] = useState('')
   const [security, setSecurity] = useState('WPA')
+  const [waCountry, setWaCountry] = useState(DEFAULT_COUNTRY_CODE)
+  const [waNumber, setWaNumber] = useState('')
+  const [waMessage, setWaMessage] = useState('')
   const [params, setParams] = useState<ModelParams>(defaultParams)
   const [baseColor, setBaseColor] = useState<string>(filaments[0].hex)
   const [codeColor, setCodeColor] = useState<string>(filaments[1].hex)
 
+  const waDigits = whatsappDigits(waCountry, waNumber)
   const content =
     mode === 'url'
-      ? url
+      ? normalizeUrl(url)
       : mode === 'text'
         ? text
-        : wifiString(ssid, wifiPass, security)
+        : mode === 'wifi'
+          ? wifiString(ssid, wifiPass, security)
+          : whatsappLink(waCountry, waNumber, waMessage)
 
   const set = <K extends keyof ModelParams>(key: K, value: ModelParams[K]) =>
     setParams((p) => ({ ...p, [key]: value }))
@@ -126,18 +138,31 @@ function Home() {
   }>(() => {
     try {
       const matrix = buildMatrix(deferred.content, deferred.errorLevel)
-      return { matrix, ...buildGeometry(deferred, matrix) }
+      // The border is never thinner than the quiet zone scanners need.
+      const printed = resolveParams(deferred, matrix.size)
+      return { matrix, ...buildGeometry(printed, matrix) }
     } catch {
       return { error: 'tooLong' }
     }
   }, [deferred])
 
-  const dims = modelDimensions(params)
+  const quietMin = model.matrix
+    ? minMargin(params.qrSize, model.matrix.size)
+    : 1
+  const margin = Math.max(params.margin, quietMin)
+  const dims = modelDimensions({ ...params, margin })
   const moduleMm = model.matrix ? params.qrSize / model.matrix.size : 0
-  const ready = !!model.base && content.trim().length > 0
-  const sameColors = contrastRatio(baseColor, codeColor) < 1.5
+  const ready =
+    !!model.base &&
+    content.trim().length > 0 &&
+    (mode !== 'wifi' || ssid.trim().length > 0)
+  const contrast = contrastRatio(baseColor, codeColor)
+  const sameColors = contrast < 1.5
+  const lowContrast = !sameColors && contrast < 3
+  const inverted =
+    !sameColors && !lowContrast && luminance(codeColor) > luminance(baseColor)
 
-  const side = params.qrSize + params.margin * 2
+  const side = params.qrSize + margin * 2
   const maxOffset = Math.max(0, side / 2 - 4)
   const loopOffset = Math.max(
     -maxOffset,
@@ -171,7 +196,7 @@ function Home() {
     const data = await QRCode.toDataURL(content || ' ', {
       errorCorrectionLevel: params.errorLevel,
       width: 1024,
-      margin: 2,
+      margin: QUIET_MODULES,
       color: { dark: codeColor, light: baseColor },
     })
     const a = document.createElement('a')
@@ -263,6 +288,8 @@ function Home() {
                 <Warning>{t('smallModules')}</Warning>
               )}
               {sameColors && <Warning>{t('sameColors')}</Warning>}
+              {lowContrast && <Warning>{t('lowContrast')}</Warning>}
+              {inverted && <Warning>{t('invertedColors')}</Warning>}
             </div>
           </div>
 
@@ -293,12 +320,13 @@ function Home() {
         <div className="min-w-0 space-y-6 rounded-3xl border border-border bg-card p-4 sm:p-5 lg:col-start-1 lg:row-start-1">
           <div>
             <StepLabel n={1}>{t('step1')}</StepLabel>
-            <div className="mb-3 grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
+            <div className="mb-3 grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
               {(
                 [
                   ['url', t('tabLink'), Link2],
                   ['text', t('tabText'), Type],
                   ['wifi', t('tabWifi'), Wifi],
+                  ['whatsapp', t('tabWhatsapp'), MessageCircle],
                 ] as const
               ).map(([id, label, Icon]) => (
                 <button
@@ -369,6 +397,65 @@ function Home() {
                 </select>
               </div>
             )}
+            {mode === 'whatsapp' && (
+              <div className="space-y-2">
+                {/* Phone numbers read left to right in every language. */}
+                <div
+                  className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-2"
+                  dir="ltr"
+                >
+                  <div className="relative">
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      +
+                    </span>
+                    <Input
+                      value={waCountry}
+                      onChange={(e) => setWaCountry(e.target.value)}
+                      placeholder={DEFAULT_COUNTRY_CODE}
+                      aria-label={t('waCountry')}
+                      title={t('waCountry')}
+                      inputMode="tel"
+                      autoComplete="tel-country-code"
+                      className="h-11 ps-6"
+                    />
+                  </div>
+                  <Input
+                    value={waNumber}
+                    onChange={(e) => setWaNumber(e.target.value)}
+                    placeholder="050-123-4567"
+                    aria-label={t('waNumber')}
+                    inputMode="tel"
+                    autoComplete="tel-national"
+                    className="h-11"
+                  />
+                </div>
+                <Textarea
+                  value={waMessage}
+                  onChange={(e) => setWaMessage(e.target.value)}
+                  placeholder={t('waMessage')}
+                  aria-label={t('waMessage')}
+                  rows={2}
+                  dir="auto"
+                />
+                {!waNumber.trim() ? (
+                  <p className="text-xs text-muted-foreground">{t('waHint')}</p>
+                ) : waDigits ? (
+                  <p
+                    dir="ltr"
+                    className="font-mono text-xs break-all text-muted-foreground"
+                  >
+                    {content}
+                  </p>
+                ) : (
+                  <p role="alert" className="text-sm text-destructive">
+                    {t('waInvalid')}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -383,15 +470,22 @@ function Home() {
                 value={params.qrSize}
                 onChange={(v) => set('qrSize', v)}
               />
-              <Slider
-                label={t('border')}
-                unit="mm"
-                min={1}
-                max={12}
-                step={0.5}
-                value={params.margin}
-                onChange={(v) => set('margin', v)}
-              />
+              <div>
+                <Slider
+                  label={t('border')}
+                  unit="mm"
+                  min={Math.max(1, quietMin)}
+                  max={Math.max(12, quietMin)}
+                  step={0.5}
+                  value={margin}
+                  onChange={(v) => set('margin', v)}
+                />
+                {quietMin > params.margin && (
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {t('quietZoneNote')}
+                  </p>
+                )}
+              </div>
               <Slider
                 label={t('baseThickness')}
                 unit="mm"
@@ -419,6 +513,20 @@ function Home() {
                 value={params.cornerRadius}
                 onChange={(v) => set('cornerRadius', v)}
               />
+              <div>
+                <Slider
+                  label={t('compensation')}
+                  unit="mm"
+                  min={0}
+                  max={0.2}
+                  step={0.01}
+                  value={params.inset}
+                  onChange={(v) => set('inset', v)}
+                />
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {t('compensationHint')}
+                </p>
+              </div>
 
               <div className="rounded-2xl border border-border p-3">
                 <div className="flex min-h-11 items-center justify-between gap-3">
